@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Financial Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Chat Toggle Button -->
+    <div id="chat-toggle-button" onclick="toggleChat()">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chat Icon" />
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chat-container">
+        <header>
+            <h1>AI-Powered Financial Chatbot</h1>
+            <button id="close-chat" onclick="toggleChat()">X</button>
+        </header>
+        <div class="chat-box" id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="input-area">
+            <input type="text" id="company" placeholder="Company name (e.g., Microsoft)">
+            <input type="number" id="year" placeholder="Year (e.g., 2021)">
+            <select id="metric" aria-placeholder="There 10 metrics choose one">
+                <option value="Total Revenue">Total Revenue</option>
+                <option value="Total Net Income">Total Net Income</option>
+                <option value="Total Assets">Total Assets</option>
+                <option value="Total Liabilities">Total Liabilities</option>
+                <option value="Cash Flow from Operating Activities">Cash Flow from Operating Activities</option>
+                <option value="Revenue Growth (%)">Revenue Growth (%)</option>
+                <option value="Net Income Growth (%)">Net Income Growth (%)</option>
+                <option value="Assets Growth (%)">Assets Growth (%)</option>
+                <option value="Liabilities Growth (%)">Liabilities Growth (%)</option>
+                <option value="Cash Flow from Operations Growth(%)">Cash Flow from Operations Growth(%)</option>
+            </select>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChat() {
+            const chatContainer = document.getElementById("chat-container");
+            chatContainer.classList.toggle("open");
+        }
+
+        function addMessage(message, sender) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.className = sender === 'user' ? 'user-message' : 'bot-message';
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const company = document.getElementById('company').value;
+            const year = document.getElementById('year').value;
+            const metric = document.getElementById('metric').value;
+
+            if (company && year && metric) {
+                addMessage(`User: Give me ${metric} for ${company} in ${year}`, 'user');
+
+                fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company, year, metric })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage(`Chatbot: ${data.response}`, 'bot');
+                });
+            } else {
+                alert("Please enter all fields.");
+            }
+        }
+    </script>
+</body>
+</html>
